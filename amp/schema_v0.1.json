@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://amp-protocol.org/schemas/v0.1/memory-object.json",
+  "title": "AMP MemoryObject",
+  "description": "Agent Memory Protocol v0.1 — The fundamental unit of agent memory.",
+  "type": "object",
+  "required": ["id", "content", "memory_type", "created_at", "importance", "decay_rate", "permanence"],
+
+  "properties": {
+
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Globally unique identifier for this memory."
+    },
+
+    "content": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable content of the memory."
+    },
+
+    "embedding": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 1,
+          "description": "Semantic vector representation. Dimension depends on embedding model."
+        }
+      ]
+    },
+
+    "structured": {
+      "type": "object",
+      "description": "Optional key-value structured facts extracted from content.",
+      "additionalProperties": true
+    },
+
+    "memory_type": {
+      "type": "string",
+      "enum": ["fact", "event", "skill", "preference", "context"],
+      "description": "Semantic category of this memory. Determines default decay rate."
+    },
+
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Free-form labels for filtering and grouping."
+    },
+
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target_id", "relation_type"],
+        "properties": {
+          "target_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "relation_type": {
+            "type": "string",
+            "enum": ["derived_from", "contradicts", "supports", "updates", "related_to"]
+          },
+          "strength": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "default": 1.0
+          }
+        }
+      },
+      "description": "Directed graph edges to other MemoryObjects."
+    },
+
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp with timezone. When this memory was created."
+    },
+
+    "accessed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp. Last time this memory was retrieved."
+    },
+
+    "importance": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Subjective importance set by the writing agent. Scales initial weight."
+    },
+
+    "decay_rate": {
+      "type": "number",
+      "minimum": 0.0,
+      "description": "λ in the decay function weight(t) = importance × e^(−λ × Δt_days) + permanence. Higher = faster forgetting."
+    },
+
+    "permanence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Minimum weight floor. Memory never falls below this value."
+    },
+
+    "trust": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "required": ["agent_id", "model", "confidence"],
+          "properties": {
+            "agent_id": {
+              "type": "string",
+              "description": "ID of the agent that wrote this memory."
+            },
+            "model": {
+              "type": "string",
+              "description": "Model identifier used by the writing agent."
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0,
+              "description": "How confident the writing agent is in this memory."
+            },
+            "source": {
+              "type": "string",
+              "enum": ["user_input", "inference", "tool_result", "agent_share", "system"],
+              "description": "How this memory was obtained."
+            },
+            "verified_by": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Agent IDs that independently verified this memory."
+            }
+          }
+        }
+      ]
+    },
+
+    "scope": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["private", "session", "user", "public"],
+              "description": "Access level. private < session < user < public."
+            },
+            "agent_id":   { "type": ["string", "null"] },
+            "session_id": { "type": ["string", "null"] },
+            "user_id":    { "type": ["string", "null"] }
+          }
+        }
+      ]
+    }
+  },
+
+  "examples": [
+    {
+      "id": "a1b2c3d4-0000-0000-0000-000000000001",
+      "content": "User's name is Andrii",
+      "embedding": null,
+      "structured": { "entity": "user", "attribute": "name", "value": "Andrii" },
+      "memory_type": "fact",
+      "tags": ["identity", "name"],
+      "relations": [],
+      "created_at": "2025-03-25T10:00:00+00:00",
+      "accessed_at": "2025-03-25T10:00:00+00:00",
+      "importance": 0.9,
+      "decay_rate": 0.001,
+      "permanence": 0.3,
+      "trust": {
+        "agent_id": "agent-claude-001",
+        "model": "claude-sonnet-4-6",
+        "confidence": 0.95,
+        "source": "user_input",
+        "verified_by": []
+      },
+      "scope": {
+        "type": "user",
+        "agent_id": "agent-claude-001",
+        "session_id": null,
+        "user_id": "user-xyz-123"
+      }
+    }
+  ]
+}

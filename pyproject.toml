@@ -1,0 +1,110 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name            = "amp-memory"
+version         = "0.3.0"
+description     = "Agent Memory Protocol — open standard for persistent memory between AI agents"
+readme          = "README.md"
+license         = { text = "MIT" }
+requires-python = ">=3.9"
+keywords        = ["ai", "agents", "memory", "mcp", "llm", "embeddings", "protocol"]
+classifiers     = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+authors = [
+  { name = "AMP Protocol Contributors" },
+]
+
+dependencies = [
+  "numpy>=1.24",
+  "scipy>=1.10",
+]
+
+[project.optional-dependencies]
+postgres = [
+  "psycopg2-binary>=2.9",
+]
+openai = [
+  "openai>=1.0",
+]
+server = [
+  "fastapi>=0.110",
+  "uvicorn[standard]>=0.27",
+]
+all = [
+  "amp-memory[postgres,openai,server]",
+]
+dev = [
+  "pytest>=8.0",
+  "pytest-asyncio>=0.23",
+  "pytest-cov>=5.0",
+  "ruff>=0.4",
+  "mypy>=1.9",
+  "black>=24.0",
+]
+
+[project.urls]
+Homepage      = "https://amp-protocol.org"
+Documentation = "https://docs.amp-protocol.org"
+Repository    = "https://github.com/amp-protocol/amp-python"
+"Bug Tracker" = "https://github.com/amp-protocol/amp-python/issues"
+Changelog     = "https://github.com/amp-protocol/amp-python/blob/main/CHANGELOG.md"
+
+[project.scripts]
+amp-server = "amp.server.http_server:run"
+amp-mcp    = "amp.server.mcp_server:main"
+
+[tool.setuptools.packages.find]
+where   = ["."]
+include = ["amp*"]
+
+[tool.setuptools.package-data]
+amp = ["schema_v0.1.json", "py.typed"]
+
+# ── Ruff (linter + formatter) ──────────────────────────────────────────────
+[tool.ruff]
+line-length    = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select  = ["E", "F", "I", "UP", "B", "SIM"]
+ignore  = ["E501", "B008"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["amp"]
+
+# ── Mypy ──────────────────────────────────────────────────────────────────
+[tool.mypy]
+python_version         = "3.9"
+strict                 = false
+warn_return_any        = true
+warn_unused_configs    = true
+ignore_missing_imports = true
+
+# ── Pytest ────────────────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+testpaths    = ["tests"]
+addopts      = "-v --tb=short"
+asyncio_mode = "auto"
+
+# ── Coverage ──────────────────────────────────────────────────────────────
+[tool.coverage.run]
+source = ["amp"]
+omit   = ["tests/*", "*/server/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under   = 70

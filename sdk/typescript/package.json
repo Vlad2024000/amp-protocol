@@ -1,0 +1,42 @@
+{
+  "name": "@amp-protocol/sdk",
+  "version": "0.3.0",
+  "description": "Agent Memory Protocol — TypeScript/JavaScript SDK",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev":   "tsup src/index.ts --format cjs,esm --dts --watch",
+    "test":  "vitest run",
+    "lint":  "tsc --noEmit && eslint src"
+  },
+  "keywords": ["ai", "agent", "memory", "mcp", "llm", "protocol", "amp"],
+  "author":   "AMP Protocol Contributors",
+  "license":  "MIT",
+  "homepage": "https://amp-protocol.org",
+  "repository": {
+    "type": "git",
+    "url":  "https://github.com/amp-protocol/amp-python"
+  },
+  "bugs": {
+    "url": "https://github.com/amp-protocol/amp-python/issues"
+  },
+  "devDependencies": {
+    "tsup":      "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest":    "^1.5.0"
+  },
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=18"
+  }
+}

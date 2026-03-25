@@ -1,0 +1,67 @@
+version: "3.9"
+
+# AMP Full Stack
+#
+# Includes:
+#   - amp-server     : AMP HTTP + MCP server
+#   - postgres       : PostgreSQL 16 + pgvector extension
+#   - amp-init       : One-shot DB migration + index creation
+#
+# Usage:
+#   docker compose up -d
+#   curl http://localhost:8765/health
+#   curl -X POST http://localhost:8765/v1/memories \
+#        -H "Content-Type: application/json" \
+#        -d '{"content": "Alice prefers concise answers", "memory_type": "preference"}'
+
+services:
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: amp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       amp
+      POSTGRES_USER:     amp
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-amp_dev_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U amp -d amp"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  amp-server:
+    build:
+      context: .
+      target:  runtime
+    container_name: amp-server
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${AMP_PORT:-8765}:8765"
+    volumes:
+      - amp_data:/data
+    environment:
+      AMP_DSN:        postgresql://amp:${POSTGRES_PASSWORD:-amp_dev_password}@postgres:5432/amp
+      AMP_AGENT_ID:   ${AMP_AGENT_ID:-amp-server}
+      AMP_USER_ID:    ${AMP_USER_ID:-default-user}
+      AMP_API_KEY:    ${AMP_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      AMP_HOST:       0.0.0.0
+      AMP_PORT:       "8765"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8765/health')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  amp_data:
