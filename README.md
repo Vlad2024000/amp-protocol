@@ -2,7 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/amp-memory.svg)](https://pypi.org/project/amp-memory/)
 [![npm version](https://badge.fury.io/js/@amp-protocol%2Fsdk.svg)](https://www.npmjs.com/package/@amp-protocol/sdk)
-[![CI](https://github.com/amp-protocol/amp-python/actions/workflows/ci.yml/badge.svg)](https://github.com/amp-protocol/amp-python/actions)
+[![CI](https://github.com/Vlad2024000/amp-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/Vlad2024000/amp-protocol/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Spec: v0.1](https://img.shields.io/badge/spec-v0.1-purple.svg)](docs/SPEC.md)
